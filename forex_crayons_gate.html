@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Forex Crayons — Get Early Access</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Mono:wght@300;400;500&family=Libre+Baskerville:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:       #0a0f1e;
+    --navy-mid:   #111827;
+    --navy-light: #1a2540;
+    --gold:       #c9a84c;
+    --gold-light: #e8c97a;
+    --pink:       #e8749a;
+    --green:      #4caf7d;
+    --blue:       #4a90d9;
+    --white:      #f5f0e8;
+    --white-dim:  #b8b0a0;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background-color: var(--navy);
+    color: var(--white);
+    font-family: 'Libre Baskerville', Georgia, serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Subtle radial glow */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 800px;
+    height: 800px;
+    background: radial-gradient(circle, rgba(201,168,76,0.04) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  /* Grain */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    opacity: 0.4;
+  }
+
+  .container {
+    max-width: 560px;
+    width: 100%;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+    animation: fadeUp 0.9s ease forwards;
+  }
+
+  /* Crayon dots */
+  .crayon-dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 2.5rem;
+  }
+
+  .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+
+  .eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1.5rem;
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 900;
+    line-height: 1.15;
+    color: var(--white);
+    margin-bottom: 1.25rem;
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--gold-light);
+  }
+
+  .subtext {
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--white-dim);
+    margin-bottom: 2.5rem;
+    max-width: 440px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* What you get */
+  .benefits {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 2.5rem;
+    text-align: left;
+  }
+
+  .benefit {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    background: var(--navy-light);
+    border: 1px solid rgba(201,168,76,0.1);
+    padding: 1rem 1.25rem;
+  }
+
+  .benefit-icon {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    color: var(--gold);
+    text-transform: uppercase;
+    white-space: nowrap;
+    padding-top: 2px;
+    min-width: 60px;
+  }
+
+  .benefit-text {
+    font-size: 0.9rem;
+    color: var(--white-dim);
+    line-height: 1.5;
+  }
+
+  .benefit-text strong {
+    color: var(--white);
+    display: block;
+    margin-bottom: 0.2rem;
+  }
+
+  /* Form */
+  .gate-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .input-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  input[type="text"],
+  input[type="email"] {
+    width: 100%;
+    background: var(--navy-light);
+    border: 1px solid rgba(201,168,76,0.2);
+    color: var(--white);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    padding: 1rem 1.25rem;
+    outline: none;
+    transition: border-color 0.3s ease;
+    -webkit-appearance: none;
+  }
+
+  input[type="text"]::placeholder,
+  input[type="email"]::placeholder {
+    color: rgba(255,255,255,0.2);
+    letter-spacing: 0.05em;
+  }
+
+  input[type="text"]:focus,
+  input[type="email"]:focus {
+    border-color: var(--gold);
+  }
+
+  .btn-submit {
+    width: 100%;
+    background: var(--gold);
+    color: var(--navy);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 1.1rem 2rem;
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+  }
+
+  .btn-submit:hover {
+    background: var(--gold-light);
+    transform: translateY(-2px);
+  }
+
+  .btn-submit:active {
+    transform: translateY(0);
+  }
+
+  .privacy {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.2);
+    margin-top: 1rem;
+    text-align: center;
+  }
+
+  /* Divider */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .divider-line {
+    flex: 1;
+    height: 1px;
+    background: rgba(201,168,76,0.15);
+  }
+
+  .divider-text {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    color: rgba(201,168,76,0.4);
+    text-transform: uppercase;
+  }
+
+  /* Success state */
+  .success-state {
+    display: none;
+    text-align: center;
+    animation: fadeUp 0.6s ease forwards;
+  }
+
+  .success-icon {
+    font-size: 3rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .success-state h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 1rem;
+  }
+
+  .success-state p {
+    font-size: 0.95rem;
+    color: var(--white-dim);
+    line-height: 1.7;
+    margin-bottom: 2rem;
+  }
+
+  .btn-proof {
+    display: inline-block;
+    background: var(--gold);
+    color: var(--navy);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 1.1rem 3rem;
+    text-decoration: none;
+    transition: background 0.3s ease, transform 0.2s ease;
+  }
+
+  .btn-proof:hover {
+    background: var(--gold-light);
+    transform: translateY(-2px);
+  }
+
+  /* Back link */
+  .back-link {
+    position: fixed;
+    top: 2rem;
+    left: 2rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.2);
+    text-decoration: none;
+    transition: color 0.3s ease;
+    z-index: 10;
+  }
+
+  .back-link:hover {
+    color: var(--gold);
+  }
+
+  /* Logo */
+  .logo {
+    position: fixed;
+    top: 2rem;
+    right: 2rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(201,168,76,0.4);
+    z-index: 10;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 500px) {
+    .input-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<a href="index.html" class="back-link">← Back</a>
+<span class="logo">Forex Crayons</span>
+
+<div class="container">
+
+  <!-- FORM STATE -->
+  <div id="form-state">
+
+    <div class="crayon-dots">
+      <div class="dot" style="background:var(--blue)"></div>
+      <div class="dot" style="background:var(--pink)"></div>
+      <div class="dot" style="background:var(--gold)"></div>
+      <div class="dot" style="background:var(--green)"></div>
+    </div>
+
+    <p class="eyebrow">Early Access</p>
+
+    <h1>You've Seen the Story.<br><em>Now See the Proof.</em></h1>
+
+    <p class="subtext">Leave your details and we'll send you the first chapter of the Foundation Manual — free — plus direct access to the evidence that started everything.</p>
+
+    <div class="benefits">
+      <div class="benefit">
+        <span class="benefit-icon">Free</span>
+        <div class="benefit-text">
+          <strong>Foundation Manual — Chapter 1</strong>
+          The core principle explained. No fluff. The exact insight that makes this method different from everything else.
+        </div>
+      </div>
+      <div class="benefit">
+        <span class="benefit-icon">Instant</span>
+        <div class="benefit-text">
+          <strong>Access to the Proof Page</strong>
+          The ZuluTrade ranking. The documented calls. The manipulation catches. The evidence room opens immediately.
+        </div>
+      </div>
+      <div class="benefit">
+        <span class="benefit-icon">Email</span>
+        <div class="benefit-text">
+          <strong>The AI Analysis — Delivered</strong>
+          The full Claude analysis of the Crayon Method sent directly to your inbox. Share it. Save it. Read it again.
+        </div>
+      </div>
+    </div>
+
+    <form
+      class="gate-form"
+      name="early-access"
+      method="POST"
+      data-netlify="true"
+      netlify-honeypot="bot-field"
+      id="gate-form"
+    >
+      <input type="hidden" name="form-name" value="early-access">
+      <input type="hidden" name="bot-field" style="display:none">
+
+      <div class="input-row">
+        <input type="text"  name="first_name" placeholder="First name" required>
+        <input type="text"  name="last_name"  placeholder="Last name">
+      </div>
+      <input type="email" name="email" placeholder="Your email address" required>
+      <input type="text"  name="tradingview" placeholder="TradingView username (optional)">
+
+      <button type="submit" class="btn-submit">
+        Send Me The Proof →
+      </button>
+    </form>
+
+    <p class="privacy">No spam. No sharing. Unsubscribe anytime. Your information stays private.</p>
+
+  </div>
+
+  <!-- SUCCESS STATE -->
+  <div class="success-state" id="success-state">
+    <div class="success-icon">🎨</div>
+    <h2>You're In.<br><em>Check Your Email.</em></h2>
+    <p>The first chapter and the AI analysis are on their way to your inbox right now. Click below to enter the evidence room — the proof that started everything.</p>
+    <a href="proof.html" class="btn-proof">Enter The Evidence Room →</a>
+  </div>
+
+</div>
+
+<script>
+  const form = document.getElementById('gate-form');
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const data = new FormData(form);
+
+    fetch('/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams(data).toString()
+    })
+    .then(() => {
+      document.getElementById('form-state').style.display = 'none';
+      document.getElementById('success-state').style.display = 'block';
+      // Redirect to proof page after 3 seconds
+      setTimeout(() => {
+        window.location.href = 'proof.html';
+      }, 3000);
+    })
+    .catch(() => {
+      // If form submit fails still redirect — don't block the user
+      window.location.href = 'proof.html';
+    });
+  });
+</script>
+
+</body>
+</html>
