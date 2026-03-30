@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Crayon Method — Foundation Manual</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Mono:wght@300;400;500&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:       #0a0f1e;
+    --navy-mid:   #111827;
+    --navy-light: #1a2540;
+    --navy-card:  #141d30;
+    --gold:       #c9a84c;
+    --gold-light: #e8c97a;
+    --pink:       #e8749a;
+    --green:      #4caf7d;
+    --blue:       #4a90d9;
+    --white:      #f5f0e8;
+    --white-dim:  #b8b0a0;
+    --red:        #e05555;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--navy);
+    color: var(--white);
+    font-family: 'Libre Baskerville', Georgia, serif;
+    overflow-x: hidden;
+  }
+
+  /* GRAIN */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 100;
+    opacity: 0.35;
+  }
+
+  /* NAV / HEADER */
+  .manual-header {
+    background: rgba(10,15,30,0.97);
+    border-bottom: 1px solid rgba(201,168,76,0.15);
+    padding: 1.25rem 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+
+  .header-brand {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+
+  .header-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--white-dim);
+  }
+
+  .header-version {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    color: rgba(201,168,76,0.4);
+  }
+
+  /* COVER */
+  .cover {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 6rem 2rem;
+    border-bottom: 1px solid rgba(201,168,76,0.12);
+    position: relative;
+  }
+
+  .cover-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 2rem;
+    opacity: 0;
+    animation: fadeUp 1s ease forwards 0.3s;
+  }
+
+  .cover h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(3rem, 8vw, 6.5rem);
+    font-weight: 900;
+    line-height: 1.0;
+    color: var(--white);
+    margin-bottom: 1rem;
+    opacity: 0;
+    animation: fadeUp 1s ease forwards 0.6s;
+  }
+
+  .cover h1 em {
+    font-style: italic;
+    color: var(--gold-light);
+    display: block;
+  }
+
+  .cover-sub {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1rem, 2vw, 1.3rem);
+    font-style: italic;
+    color: var(--white-dim);
+    margin-bottom: 3rem;
+    opacity: 0;
+    animation: fadeUp 1s ease forwards 0.9s;
+  }
+
+  .cover-meta {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(201,168,76,0.5);
+    line-height: 2;
+    opacity: 0;
+    animation: fadeUp 1s ease forwards 1.2s;
+  }
+
+  .crayon-dots {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 2.5rem 0;
+    opacity: 0;
+    animation: fadeUp 1s ease forwards 1.5s;
+  }
+
+  .dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+  }
+
+  /* TOC */
+  .toc {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 5rem 2rem;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .toc-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 2rem;
+  }
+
+  .toc-list {
+    list-style: none;
+  }
+
+  .toc-item {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    padding: 0.9rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    cursor: pointer;
+    transition: color 0.3s ease;
+  }
+
+  .toc-item:hover .toc-chapter-title { color: var(--gold); }
+
+  .toc-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--gold);
+    opacity: 0.5;
+    min-width: 30px;
+  }
+
+  .toc-chapter-title {
+    font-family: 'Libre Baskerville', serif;
+    font-size: 1rem;
+    color: var(--white-dim);
+    transition: color 0.3s ease;
+    flex: 1;
+  }
+
+  .toc-dots {
+    flex: 1;
+    border-bottom: 1px dotted rgba(255,255,255,0.1);
+    margin: 0 1rem;
+    align-self: center;
+  }
+
+  /* CHAPTER */
+  .chapter {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 6rem 2rem;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .chapter-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .chapter-num::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(201,168,76,0.15);
+  }
+
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    font-weight: 700;
+    line-height: 1.15;
+    margin-bottom: 2rem;
+    color: var(--white);
+  }
+
+  h2 em {
+    font-style: italic;
+    color: var(--gold-light);
+  }
+
+  h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--white);
+    margin: 2.5rem 0 1rem;
+  }
+
+  p {
+    font-size: 1.05rem;
+    line-height: 1.95;
+    color: var(--white-dim);
+    margin-bottom: 1.5rem;
+  }
+
+  p strong { color: var(--white); }
+  p em { font-style: italic; color: var(--white); }
+
+  /* CALLOUT */
+  .callout {
+    border-left: 3px solid var(--gold);
+    background: rgba(201,168,76,0.04);
+    padding: 1.5rem 2rem;
+    margin: 2rem 0;
+  }
+
+  .callout p {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 1.1rem;
+    color: var(--white);
+    margin: 0;
+    line-height: 1.7;
+  }
+
+  /* RULE BOX */
+  .rule-box {
+    background: var(--navy-card);
+    border: 1px solid rgba(201,168,76,0.15);
+    padding: 2rem;
+    margin: 2rem 0;
+  }
+
+  .rule-box-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1.25rem;
+  }
+
+  .rule-list {
+    list-style: none;
+  }
+
+  .rule-list li {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--white-dim);
+    padding: 0.6rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    display: flex;
+    gap: 1rem;
+    line-height: 1.5;
+  }
+
+  .rule-list li:last-child { border-bottom: none; }
+
+  .rule-list li::before {
+    content: '→';
+    color: var(--gold);
+    flex-shrink: 0;
+  }
+
+  /* COLOR BLOCK */
+  .color-block {
+    background: var(--navy-card);
+    border: 1px solid rgba(255,255,255,0.06);
+    margin: 1.5rem 0;
+    overflow: hidden;
+    transition: border-color 0.3s ease;
+  }
+
+  .color-block:hover { border-color: rgba(201,168,76,0.2); }
+
+  .color-block-header {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1.25rem 1.75rem;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .color-swatch {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .color-block-name {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  .color-block-role {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--white);
+    margin-left: auto;
+  }
+
+  .color-block-body {
+    padding: 1.5rem 1.75rem;
+  }
+
+  .color-block-body p {
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+  }
+
+  .color-block-body p:last-child { margin-bottom: 0; }
+
+  /* SIGNAL LADDER */
+  .signal-ladder {
+    margin: 2rem 0;
+  }
+
+  .signal-step {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 1px;
+  }
+
+  .signal-step-num {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+
+  .signal-circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+
+  .signal-line {
+    width: 1px;
+    flex: 1;
+    background: rgba(255,255,255,0.08);
+    margin: 4px auto;
+    min-height: 20px;
+  }
+
+  .signal-content {
+    background: var(--navy-card);
+    border: 1px solid rgba(255,255,255,0.06);
+    padding: 1.25rem 1.5rem;
+    flex: 1;
+    margin-bottom: 1rem;
+  }
+
+  .signal-content-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .signal-content p {
+    font-size: 0.9rem;
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  /* TF TABLE */
+  .tf-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 2rem 0;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+  }
+
+  .tf-table th {
+    text-align: left;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid rgba(201,168,76,0.2);
+    color: var(--gold);
+    font-weight: 400;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-size: 0.65rem;
+  }
+
+  .tf-table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    color: var(--white-dim);
+  }
+
+  .tf-table tr:hover td { color: var(--white); background: rgba(255,255,255,0.02); }
+
+  .tf-table .highlight { color: var(--gold); }
+  .tf-table .muted { color: rgba(255,255,255,0.2); }
+
+  /* PANEL GUIDE */
+  .panel-guide {
+    background: var(--navy-card);
+    border: 1px solid rgba(201,168,76,0.12);
+    padding: 2rem;
+    margin: 2rem 0;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .panel-row {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 1rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    font-size: 0.75rem;
+  }
+
+  .panel-row:last-child { border-bottom: none; }
+
+  .panel-key { color: var(--gold); }
+  .panel-val { color: var(--white-dim); line-height: 1.5; }
+
+  /* CLOSING */
+  .closing {
+    text-align: center;
+    padding: 8rem 2rem;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .closing-quote {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.3rem, 3vw, 1.8rem);
+    font-style: italic;
+    color: var(--white);
+    line-height: 1.7;
+    margin-bottom: 2rem;
+  }
+
+  .closing-quote strong {
+    color: var(--gold-light);
+    font-style: normal;
+  }
+
+  .closing-attr {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 3rem;
+  }
+
+  .btn-upgrade {
+    display: inline-block;
+    background: var(--gold);
+    color: var(--navy);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 1.1rem 3rem;
+    text-decoration: none;
+    transition: background 0.3s ease, transform 0.2s ease;
+    margin: 0 0.5rem 1rem;
+  }
+
+  .btn-upgrade:hover {
+    background: var(--gold-light);
+    transform: translateY(-2px);
+  }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid rgba(255,255,255,0.05);
+    padding: 2rem 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  footer p {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.15);
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .fade-in {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+
+  .fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (max-width: 600px) {
+    .manual-header { padding: 1rem 1.5rem; }
+    .header-title { display: none; }
+    .chapter { padding: 4rem 1.5rem; }
+    .panel-row { grid-template-columns: 1fr; gap: 0.25rem; }
+  }
+
+  @media print {
+    body { background: white; color: black; }
+    .manual-header { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="manual-header">
+  <span class="header-brand">Forex Crayons</span>
+  <span class="header-title">The Crayon Method — Foundation Manual</span>
+  <span class="header-version">v46 · 2026</span>
+</header>
+
+<!-- COVER -->
+<section class="cover">
+  <p class="cover-tag">Foundation Manual · Invite Only</p>
+  <h1>The Crayon<em>Method</em></h1>
+  <p class="cover-sub">A complete guide to reading the market in real time — not in the rearview mirror</p>
+  <div class="crayon-dots">
+    <div class="dot" style="background:var(--blue)"></div>
+    <div class="dot" style="background:var(--pink)"></div>
+    <div class="dot" style="background:var(--gold)"></div>
+    <div class="dot" style="background:var(--green)"></div>
+  </div>
+  <div class="cover-meta">
+    William Martinez · Creator · Wall Street 1984<br>
+    Forex Crayons · fxCrayons · All Rights Reserved<br>
+    Do Not Share · Do Not Distribute · Invite Only
+  </div>
+</section>
+
+<!-- TABLE OF CONTENTS -->
+<section class="toc fade-in">
+  <p class="toc-label">Contents</p>
+  <ul class="toc-list">
+    <li class="toc-item" onclick="document.getElementById('ch1').scrollIntoView({behavior:'smooth'})">
+      <span class="toc-num">01</span>
+      <span class="toc-chapter-title">The Problem With Everything You've Been Taught</span>
+    </li>
+    <li class="toc-item" onclick="document.getElementById('ch2').scrollIntoView({behavior:'smooth'})">
+      <span class="toc-num">02</span>
+      <span class="toc-chapter-title">The Four Colors — What They Are and Why They Work</span>
+    </li>
+    <li class="toc-item" onclick="document.getElementById('ch3').scrollIntoView({behavior:'smooth'})">
+      <span class="toc-num">03</span>
+      <span class="toc-chapter-title">Parity — The Price Level Nobody Else Watches</span>
+    </li>
+    <li class="toc-item" onclick="document.getElementById('ch4').scrollIntoView({behavior:'smooth'})">
+      <span class="toc-num">04</span>
+      <span class="toc-chapter-title">The Sweep — Reading Institutional Intent</span>
+    </li>
+    <li class="toc-item" onclick="document.getElementById('ch5').scrollIntoView({behavior:'smooth'})">
+      <span class="toc-num">05</span>
+      <span class="toc-chapter-title">The Lead/Lag Principle — Who Moves First</span>
+    </li>
+    <li class="toc-item" onclick="document.getElementById('ch6').scrollIntoView({behavior:'smooth'})">
+      <span class="toc-num">06</span>
+      <span class="toc-chapter-title">Timeframe Sovereignty — Reading Each Chart Independently</span>
+    </li>
+    <li class="toc-item" onclick="document.getElementById('ch7').scrollIntoView({behavior:'smooth'})">
+      <span class="toc-num">07</span>
+      <span class="toc-chapter-title">The Signal Ladder — Three Tiers From Warning to Entry</span>
+    </li>
+    <li class="toc-item" onclick="document.getElementById('ch8').scrollIntoView({behavior:'smooth'})">
+      <span class="toc-num">08</span>
+      <span class="toc-chapter-title">Stop Management — Protecting the Trade</span>
+    </li>
+    <li class="toc-item" onclick="document.getElementById('ch9').scrollIntoView({behavior:'smooth'})">
+      <span class="toc-num">09</span>
+      <span class="toc-chapter-title">Reading the Panel — Your Dashboard at a Glance</span>
+    </li>
+    <li class="toc-item" onclick="document.getElementById('ch10').scrollIntoView({behavior:'smooth'})">
+      <span class="toc-num">10</span>
+      <span class="toc-chapter-title">The Rules — What You Always Do and Never Do</span>
+    </li>
+  </ul>
+</section>
+
+<!-- CHAPTER 1 -->
+<section class="chapter fade-in" id="ch1">
+  <p class="chapter-num">Chapter 01</p>
+  <h2>The Problem With Everything<br><em>You've Been Taught</em></h2>
+
+  <p>I started on Wall Street in 1984. I have watched more traders lose money than I can count. And in almost every case, the reason was the same — they were using tools designed to show them what the market already did, and betting that it would do it again.</p>
+
+  <p>RSI. MACD. Bollinger Bands. Moving average crossovers. Candlestick patterns. These tools were built by analyzing past price data. They tell you what happened. They do not tell you what is about to happen. By the time any of these signals fire, the move is already underway. You are buying the top of a wave that has already broken.</p>
+
+  <p>This is not a flaw in the tools. It is a flaw in the premise. You cannot predict the future by measuring the past. You can only read what is happening right now — and that requires looking at something other than price itself.</p>
+
+  <div class="callout">
+    <p>"The market tells you everything you need to know. You just have to know where to look. And it is never in the price."</p>
+  </div>
+
+  <h3>Why Institutions Always Win</h3>
+
+  <p>The institutions that move price — the banks, the funds, the market makers — built the technical analysis signals that retail traders use. They know exactly where every stop is sitting. They know where every RSI divergence trader will enter. They know where every moving average crossover will trigger a buy.</p>
+
+  <p>They use this knowledge against you. The setup looks perfect. The textbook pattern forms. You enter. They push price the other way, run your stop, take your money, and then price moves in the direction you originally called. <strong>You were right about the direction. You were just in the wrong hands when the move happened.</strong></p>
+
+  <p>The Crayon Method was built to solve this. Not by predicting price — but by reading the forces that are already moving price, before they finish the job.</p>
+
+  <h3>What This Method Actually Does</h3>
+
+  <p>Instead of analyzing the instrument you are trading, the Crayon Method analyzes four other data streams simultaneously — in real time, on the current bar, before the bar closes. These data streams move in relationship to your instrument in ways that reveal institutional intent before price confirms it.</p>
+
+  <p>When you understand those relationships, price action becomes a confirmation. Not a signal. You are not reacting to what price did. You are already positioned for what it is about to do. <strong>That is the difference between reading the rearview mirror and reading the road ahead.</strong></p>
+</section>
+
+<!-- CHAPTER 2 -->
+<section class="chapter fade-in" id="ch2">
+  <p class="chapter-num">Chapter 02</p>
+  <h2>The Four Colors —<br><em>What They Are and Why They Work</em></h2>
+
+  <p>The Crayon Method uses four data streams, each assigned a color. The colors have no names on the chart. There are no ticker symbols. No labels that reveal what you are reading. Only colors — and the relationships between them.</p>
+
+  <p>This is intentional. The market cannot front-run what it cannot identify. Your edge is invisible to anyone watching your screen.</p>
+
+  <div class="color-block">
+    <div class="color-block-header">
+      <div class="color-swatch" style="background:var(--blue)"></div>
+      <span class="color-block-name" style="color:var(--blue)">Blue</span>
+      <span class="color-block-role">The Manipulation Detector</span>
+    </div>
+    <div class="color-block-body">
+      <p>The BLUE line is the foundation of the system. It defines the cycle boundaries — the peak and the bottom of the current market structure on your timeframe. Everything is measured relative to BLUE.</p>
+      <p>When price moves beyond the BLUE peak or below the BLUE bottom, a sweep is underway. This is institutional stop hunting — the banks pushing price to run stops before the real move begins. BLUE is the first signal that something is happening.</p>
+      <p><strong>When BLUE diverges from price direction — meaning it moves the same way as your instrument when it should be moving opposite — all trade signals are automatically blocked.</strong> This is the manipulation detector. The banks are at work. You stay out.</p>
+    </div>
+  </div>
+
+  <div class="color-block">
+    <div class="color-block-header">
+      <div class="color-swatch" style="background:var(--pink)"></div>
+      <span class="color-block-name" style="color:var(--pink)">Pink</span>
+      <span class="color-block-role">The Book</span>
+    </div>
+    <div class="color-block-body">
+      <p>PINK is the most important line on your chart. It represents the true order flow — the actual buying and selling pressure behind every move. Think of it as the market maker's inventory in real time.</p>
+      <p>In the old days of Wall Street, traders would submit their orders manually and receive the book balance — the net inventory of the market maker — on a weekly basis. Today that information is embedded in volume data, updated tick by tick. PINK reads that data and shows you where the real money is positioned.</p>
+      <p><strong>PINK alone, with just the candles, produces an 80%+ accuracy rate.</strong> Everything else in the system is protection — against manipulation, against bad timing, against the 20% of moves that are engineered against you.</p>
+      <p>When PINK is rising, buyers are in control. When PINK is falling, sellers are in control. When PINK is at an extreme — far above or below where your instrument is trading — it is showing you where price wants to go. Price always follows the book eventually.</p>
+    </div>
+  </div>
+
+  <div class="color-block">
+    <div class="color-block-header">
+      <div class="color-swatch" style="background:var(--green)"></div>
+      <span class="color-block-name" style="color:var(--green)">Green</span>
+      <span class="color-block-role">The Early Warning</span>
+    </div>
+    <div class="color-block-body">
+      <p>GREEN is the canary. It moves before the others — sometimes by minutes, sometimes by hours — showing you where the cycle is heading before PINK and GOLD confirm.</p>
+      <p>The relationship between GREEN and your instrument is not always obvious. But decades of observation revealed a consistent pattern: when GREEN turns in a direction, your instrument follows. Not always immediately. Not always dramatically. But with enough regularity to be the first warning you watch for.</p>
+      <p><strong>When GREEN leads by a significant pip distance — far ahead of where PINK and GOLD are sitting — the gap between them is the fuel left in the move.</strong> The followers have not caught up yet. Your instrument will chase GREEN until the gap closes.</p>
+    </div>
+  </div>
+
+  <div class="color-block">
+    <div class="color-block-header">
+      <div class="color-swatch" style="background:var(--gold)"></div>
+      <span class="color-block-name" style="color:var(--gold)">Gold</span>
+      <span class="color-block-role">The Confirmation</span>
+    </div>
+    <div class="color-block-body">
+      <p>GOLD validates that the move is real. It is highly correlated to your instrument's cycle — when GOLD moves in the same direction as your trade, it confirms that real momentum is behind the move, not just noise or a temporary push.</p>
+      <p>When GOLD disagrees with the other colors, caution is warranted. When GOLD agrees — especially when it agrees while GREEN is already leading — the probability of follow-through increases significantly.</p>
+      <p><strong>GOLD is the third vote in the 2/3 Rule.</strong> Any two of three — PINK, GREEN, GOLD — pointing in the same direction equals 80%+ probability. All three pointing the same direction is the highest confidence signal the system produces.</p>
+    </div>
+  </div>
+
+  <div class="rule-box">
+    <p class="rule-box-title">The 2/3 Rule — Core Signal Logic</p>
+    <ul class="rule-list">
+      <li>Any 2 of 3 colors (PINK, GREEN, GOLD) pointing the same direction = 80%+ probability</li>
+      <li>All 3 colors aligned = highest confidence — this is the Stupid Buy / Stupid Sell signal</li>
+      <li>Only 1 color pointing a direction = wait — not enough confirmation</li>
+      <li>Colors pointing different directions = mixed — no trade, drop to lower timeframe</li>
+    </ul>
+  </div>
+</section>
+
+<!-- CHAPTER 3 -->
+<section class="chapter fade-in" id="ch3">
+  <p class="chapter-num">Chapter 03</p>
+  <h2>Parity —<br><em>The Price Level Nobody Else Watches</em></h2>
+
+  <p>Parity is the most powerful concept in the Crayon Method and the one most difficult to explain without seeing it. But once you see it — once you watch price arrive at a parity level and make its decision — you will never look at a chart the same way again.</p>
+
+  <h3>What Parity Is</h3>
+
+  <p>On your chart, the BLUE line and the PINK line are both plotted on the same price axis — your instrument's right-hand axis. They move independently. They have different ranges. But at certain moments, they converge — they approach the same price level on that axis.</p>
+
+  <p>The exact price where they are closest together is the parity point. <strong>It is a single fixed price level. Not a zone. Not an approximation. A precise mathematical price where two streams of real institutional data are in alignment.</strong></p>
+
+  <p>That price becomes significant. Price approaches it — from above or below — and makes a decision: bounce or cross. That decision, and what the other colors are doing as it happens, tells you more about where the market is heading than any traditional indicator can.</p>
+
+  <div class="callout">
+    <p>The parity point does not move until the two lines converge at a new, closer level. Once set — it holds. It is a fixed anchor on your chart that price must respond to.</p>
+  </div>
+
+  <h3>The Parity Zone</h3>
+
+  <p>Around the fixed parity point is a dynamic buffer zone. This zone is not fixed — it breathes with the market. The size of the zone is calculated from the distance between the BLUE peak and BLUE bottom on your current timeframe, multiplied by a coefficient specific to that timeframe.</p>
+
+  <p>The zone is tighter on shorter timeframes where price moves in smaller increments, and wider on longer timeframes where cycles are broader. This ensures the zone is always proportional to the current market environment — never too tight to activate, never too wide to be meaningful.</p>
+
+  <h3>What Happens at Parity</h3>
+
+  <p>When price enters the parity zone, you have a decision moment. The system counts each entry into the zone. By the third touch, the decision is urgent. Price cannot wobble at parity indefinitely. It will either:</p>
+
+  <div class="rule-box">
+    <p class="rule-box-title">Parity Decision — Bounce or Cross</p>
+    <ul class="rule-list">
+      <li><strong>Bounce</strong> — price enters the zone, closes back outside it. Direction reverses. Take profit or exit.</li>
+      <li><strong>Cross</strong> — price closes through the zone with conviction. Direction continues. Move your stop. Let it run.</li>
+      <li><strong>3rd Touch</strong> — decision cannot be deferred. Something is about to happen. Watch all colors closely.</li>
+    </ul>
+  </div>
+
+  <h3>Parity as a Stop Level</h3>
+
+  <p>Once your trade reaches the parity zone, your stop moves to the parity boundary. The trade becomes risk-free. You are protecting profit while giving price room to make its decision. If price bounces off parity against you — you exit at breakeven or a small profit. If price crosses through — you hold and let the move continue.</p>
+</section>
+
+<!-- CHAPTER 4 -->
+<section class="chapter fade-in" id="ch4">
+  <p class="chapter-num">Chapter 04</p>
+  <h2>The Sweep —<br><em>Reading Institutional Intent</em></h2>
+
+  <p>Before every significant market move, the institutions that are about to push price in a direction need to accomplish one thing first: clear the stops. They push price beyond the previous high or low — taking out everyone who had stops clustered at those levels — and then reverse and make the real move.</p>
+
+  <p>This is called a sweep. It happens on every timeframe, in every market, every day. Most traders experience it as a stop hunt — the frustrating moment where price moves against them just enough to hit their stop before reversing. The Crayon Method turns this frustration into a signal.</p>
+
+  <h3>How the Sweep Works</h3>
+
+  <p>The BLUE line defines the current cycle peak and bottom on your timeframe. When price pushes beyond the BLUE peak — above it, even by a few pips — a sell sweep is pending. The institutions just ran the buy stops. The real move is likely down.</p>
+
+  <p>When price drops below the BLUE bottom, a buy sweep is pending. The institutions just ran the sell stops. The real move is likely up.</p>
+
+  <p><strong>The sweep is not confirmed until price closes back through the BLUE level.</strong> A wick through is not enough. A close is required. This filters out false sweeps and ensures you are entering after the institutional move has completed, not during it.</p>
+
+  <div class="rule-box">
+    <p class="rule-box-title">Sweep Confirmation Requirements</p>
+    <ul class="rule-list">
+      <li>Price takes out the BLUE peak or bottom — sweep pending</li>
+      <li>A confirmation candle on the 5-minute chart appears in your direction</li>
+      <li>Price closes back through the frozen BLUE level on your timeframe</li>
+      <li>BLUE divergence is NOT active — manipulation is not blocking the signal</li>
+      <li>All conditions met = sweep confirmed — setup is ready</li>
+    </ul>
+  </div>
+
+  <h3>The Frozen Level</h3>
+
+  <p>This is critical. The moment a sweep begins — the moment price takes out the BLUE level — that exact price is locked. It does not move. The confirmation is measured against that locked level, not against where BLUE is sitting at the time of the close.</p>
+
+  <p>If the level were allowed to move as price moves, confirmation would be mathematically impossible in a fast market. The lock ensures that your confirmation is measured against the exact price where the stop hunt occurred — giving you a clean, unambiguous entry signal.</p>
+</section>
+
+<!-- CHAPTER 5 -->
+<section class="chapter fade-in" id="ch5">
+  <p class="chapter-num">Chapter 05</p>
+  <h2>The Lead/Lag Principle —<br><em>Who Moves First</em></h2>
+
+  <p>The four colors do not move together. One always leads. The others follow. The gap between the leader and the followers — measured in real price terms on your instrument's axis — is the fuel left in the move.</p>
+
+  <p>Understanding who is leading, and by how much, tells you two things: whether a move has follow-through left, and how much of that follow-through to expect.</p>
+
+  <h3>Identifying the Leader</h3>
+
+  <p>The leader is whichever of PINK, GREEN or GOLD has moved furthest in the direction of your bias. If your 4-hour analysis says the market is heading down, the leader is the color that has already dropped the most from its recent high — in EUR/USD pip terms, read on the right axis of your chart.</p>
+
+  <p>PINK is the reference point — the book. GREEN sometimes leads PINK, showing you the direction before order flow confirms it. GOLD confirms. When GREEN leads PINK by 8 pips, PINK leads GOLD by 5 pips — there are still 13 pips of compression for the followers to close before the move is exhausted.</p>
+
+  <div class="callout">
+    <p>The gap between the leader and the followers is not a measurement of distance behind. It is a measurement of fuel ahead. Large gap — the followers have not caught up. The move continues. Small gap — all compressed together. The move is exhausting itself.</p>
+  </div>
+
+  <h3>Reading the Algorithm Panel</h3>
+
+  <p>The algorithm displays this in real time in the left panel of your chart. Each color shows its direction and the pip distance behind the current leader. A star marks the leader. The others show their lag in EUR/USD pips. You read the panel — you know immediately whether there is fuel in the move or whether it is running out of steam.</p>
+
+  <h3>When Leaders Switch</h3>
+
+  <p>When the leader switches — when GREEN was leading down but now GREEN turns up while PINK and GOLD are still falling — that is your first warning of a potential reversal. The earliest warning in the system. Watch the other colors. If they follow GREEN up, the move is reversing. If they stay down and GREEN turns back, it was a temporary divergence.</p>
+</section>
+
+<!-- CHAPTER 6 -->
+<section class="chapter fade-in" id="ch6">
+  <p class="chapter-num">Chapter 06</p>
+  <h2>Timeframe Sovereignty —<br><em>Reading Each Chart Independently</em></h2>
+
+  <p>Every timeframe in the Crayon Method governs itself. The parity point on the 5-minute chart is not the same as the parity point on the 1-hour chart. The sweep levels on the 15-minute chart are independent of the sweep levels on the 4-hour chart. Each timeframe is its own complete system.</p>
+
+  <p>This is called timeframe sovereignty. It is one of the most important principles in the method — and one of the most misunderstood by traders trained on traditional analysis where higher timeframes override lower ones.</p>
+
+  <h3>The Timeframe Hierarchy</h3>
+
+  <table class="tf-table">
+    <thead>
+      <tr>
+        <th>Timeframe</th>
+        <th>Role</th>
+        <th>What You Do Here</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="highlight">4H</td>
+        <td>Bias</td>
+        <td>Determine overall direction — long or short. Do not enter trades here.</td>
+      </tr>
+      <tr>
+        <td class="highlight">1H</td>
+        <td>Swing Decision</td>
+        <td>Confirm bias. Look for sweep setups. Enter swing trades.</td>
+      </tr>
+      <tr>
+        <td class="highlight">15M</td>
+        <td>Intraday Decision</td>
+        <td>Primary trading timeframe for most setups. Sweep confirmation here.</td>
+      </tr>
+      <tr>
+        <td class="highlight">5M</td>
+        <td>Entry Confirmation</td>
+        <td>Confirmation candle for sweep entries. Lead/lag reading.</td>
+      </tr>
+      <tr>
+        <td class="highlight">3M</td>
+        <td>Precision Entry</td>
+        <td>Lowest decision timeframe. Used for fine-tuning entry after 5M confirms.</td>
+      </tr>
+      <tr>
+        <td class="muted">30M</td>
+        <td>Excluded</td>
+        <td>Not a decision timeframe. Skip it.</td>
+      </tr>
+      <tr>
+        <td class="muted">1M</td>
+        <td>Excluded</td>
+        <td>Professional scalping only. Not recommended. 3M is the floor.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>The Mid-Range Rule</h3>
+
+  <p>If price is in the middle of the range on your current timeframe — not at the cycle top, not at the cycle bottom, not at parity — there is no trade. The setup has not formed yet. You drop to the next timeframe down and look for a fresh setup there.</p>
+
+  <p><strong>Only take trades when price is at an extreme:</strong> at the 4H cycle top or bottom, at the parity level, or at the sweep confirmation point. In the middle of a range, you are guessing. At the extremes, the market is telling you something.</p>
+
+  <h3>The 4H Is Bias Only</h3>
+
+  <p>Many traders try to enter on the 4-hour chart. This is one of the most common mistakes. The 4-hour chart moves too slowly for entries — by the time you enter, the best risk/reward has already passed. Use the 4-hour to establish your directional bias — long or short — and then drop to the 1-hour or 15-minute to find your entry.</p>
+</section>
+
+<!-- CHAPTER 7 -->
+<section class="chapter fade-in" id="ch7">
+  <p class="chapter-num">Chapter 07</p>
+  <h2>The Signal Ladder —<br><em>Three Tiers From Warning to Entry</em></h2>
+
+  <p>The Crayon Method does not produce a single binary signal — enter or don't enter. It produces a three-tier ladder that walks you from the first warning through to the full entry signal. Each tier gives you more information and more confidence before you commit capital.</p>
+
+  <div class="signal-ladder">
+
+    <div class="signal-step">
+      <div class="signal-step-num">
+        <div class="signal-circle" style="background:rgba(74,144,217,0.2);color:var(--blue);border:1px solid var(--blue)">01</div>
+        <div class="signal-line"></div>
+      </div>
+      <div class="signal-content">
+        <p class="signal-content-title" style="color:var(--blue)">Setup Forming — Get Ready</p>
+        <p>Two of three colors (PINK, GREEN, GOLD) are pointing in the same direction. A sweep may be pending. The system is alerting you that conditions are building. Do not enter yet. Watch for the sweep confirmation.</p>
+      </div>
+    </div>
+
+    <div class="signal-step">
+      <div class="signal-step-num">
+        <div class="signal-circle" style="background:rgba(201,168,76,0.2);color:var(--gold);border:1px solid var(--gold)">02</div>
+        <div class="signal-line"></div>
+      </div>
+      <div class="signal-content">
+        <p class="signal-content-title" style="color:var(--gold)">Sweep Confirmed — Setup Ready</p>
+        <p>Price has taken out the BLUE level, a 5-minute confirmation candle has appeared, and price has closed back through the frozen BLUE level. The institutional stop hunt is complete. The real move is beginning. Confidence is building but full signal not yet triggered.</p>
+      </div>
+    </div>
+
+    <div class="signal-step">
+      <div class="signal-step-num">
+        <div class="signal-circle" style="background:rgba(76,175,125,0.2);color:var(--green);border:1px solid var(--green)">03</div>
+      </div>
+      <div class="signal-content">
+        <p class="signal-content-title" style="color:var(--green)">Stupid Buy / Stupid Sell — Enter Now</p>
+        <p>All three colors aligned. Sweep confirmed. Confidence at 3 or above. No manipulation detected. This is the full signal. It is called Stupid Buy or Stupid Sell because at this point — with all conditions met — it would be stupid NOT to take the trade. Enter with your calculated position size. Set your stop. Let the system manage the trade.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="rule-box">
+    <p class="rule-box-title">Signal Tier Summary</p>
+    <ul class="rule-list">
+      <li>Tier 1 — Setup Forming: 2/3 colors agree. Watch. Prepare. Do not enter.</li>
+      <li>Tier 2 — Sweep Confirmed: BLUE level taken and closed back through. Almost there.</li>
+      <li>Tier 3 — Stupid Buy/Sell: Full conditions met. Enter now. No hesitation.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- CHAPTER 8 -->
+<section class="chapter fade-in" id="ch8">
+  <p class="chapter-num">Chapter 08</p>
+  <h2>Stop Management —<br><em>Protecting the Trade</em></h2>
+
+  <p>The entries in the Crayon Method were never the problem. The ranking on ZuluTrade — #87 in the world, 80–90% win rate — was achieved with manual entries and no algorithmic stop management. Protection was the missing piece. That is what the algorithm adds.</p>
+
+  <h3>The Three-Stage Stop Cascade</h3>
+
+  <p>Your stop moves through three stages as the trade develops. Each stage is more protective than the last. The algorithm manages this automatically — you never need to manually move a stop.</p>
+
+  <div class="rule-box">
+    <p class="rule-box-title">Stop Cascade — Entry to Exit</p>
+    <ul class="rule-list">
+      <li><strong>Stage 1 — Entry Stop:</strong> Placed 20 pips beyond the BLUE sweep level. Fixed at entry. Protects against failed sweeps.</li>
+      <li><strong>Stage 2 — Trail Stop:</strong> Activates immediately from entry. Trails behind each candle low (long) or high (short). Locks in profit as the trade moves in your favor.</li>
+      <li><strong>Stage 3 — Parity Stop:</strong> When price reaches the parity zone, the stop moves to the parity boundary. The trade is now risk-free. You cannot lose money on this position.</li>
+    </ul>
+  </div>
+
+  <h3>The Manipulation Exit</h3>
+
+  <p>If BLUE divergence is detected at any point while you are in a trade — meaning the manipulation detector fires — you exit immediately. No hesitation. The banks are at work. They can push price against you beyond any reasonable stop level. Getting out when manipulation is detected is not a loss. It is a discipline.</p>
+
+  <h3>The Parity Wobble Exit</h3>
+
+  <p>When price has reached the parity zone and your stop has moved to parity, price is allowed to touch the zone up to three times. On the third touch — or if price moves more than the buffer distance against your parity stop — you close the trade. Parity has been reached. The objective is complete. Take the profit and look for the next setup.</p>
+
+  <h3>Risk Per Trade</h3>
+
+  <p>Never risk more than 2% of your account on a single trade. Position size is calculated automatically based on your account balance, the distance from entry to your entry stop, and the pip value of your instrument. The algorithm does this calculation for you — you set your account balance and risk percentage in the settings and the system handles the rest.</p>
+</section>
+
+<!-- CHAPTER 9 -->
+<section class="chapter fade-in" id="ch9">
+  <p class="chapter-num">Chapter 09</p>
+  <h2>Reading the Panel —<br><em>Your Dashboard at a Glance</em></h2>
+
+  <p>The left-side panel on your chart gives you a complete picture of market conditions at a single glance. It updates in real time on every bar. You should be able to look at it for three seconds and know exactly what the market is doing.</p>
+
+  <p>The panel reads top to bottom in order of importance.</p>
+
+  <div class="panel-guide">
+    <div class="panel-row">
+      <span class="panel-key">Header</span>
+      <span class="panel-val">Current signal status — CRAYON v46 (idle), BUY FORMING, SELL FORMING, STUPID BUY, or STUPID SELL. Color changes with signal.</span>
+    </div>
+    <div class="panel-row">
+      <span class="panel-key">4H / 1H</span>
+      <span class="panel-val">Bias direction from 4-hour and 1-hour timeframes. LONG ▲ or SHORT ▼. These must agree before you look for entries.</span>
+    </div>
+    <div class="panel-row">
+      <span class="panel-key">SWP</span>
+      <span class="panel-val">Sweep status. WAIT = no sweep. ⏳ BUY/SELL = sweep pending. ✅ BUY/SELL = sweep confirmed — setup is ready.</span>
+    </div>
+    <div class="panel-row">
+      <span class="panel-key">BLUE</span>
+      <span class="panel-val">Manipulation status. ✅ OK = safe to trade. ⚠️ DIVG = manipulation detected — all signals blocked.</span>
+    </div>
+    <div class="panel-row">
+      <span class="panel-key">S / B Confidence</span>
+      <span class="panel-val">Sell and Buy confidence scores. LOW = 1-2 signals. MED = 3-4. HIGH = 5+. You want MED or HIGH before entering.</span>
+    </div>
+    <div class="panel-row">
+      <span class="panel-key">PNK ★ / GRN / GLD</span>
+      <span class="panel-val">Crayon leader display. Star marks the leader. Numbers show pip distance behind leader in EUR/USD terms. Big gap = fuel left.</span>
+    </div>
+    <div class="panel-row">
+      <span class="panel-key">PAR +/-/@</span>
+      <span class="panel-val">Parity position. + = price above parity. - = price below parity. @ = price inside parity zone — decision moment.</span>
+    </div>
+    <div class="panel-row">
+      <span class="panel-key">P$</span>
+      <span class="panel-val">Parity point price and dynamic buffer. Example: 1.15219 ±3.3pip. The fixed level and its breathing zone.</span>
+    </div>
+    <div class="panel-row">
+      <span class="panel-key">TOP / BOT</span>
+      <span class="panel-val">Current 4H cycle top and bottom prices. These are your TP reference levels and your range boundaries.</span>
+    </div>
+    <div class="panel-row">
+      <span class="panel-key">S.TP / B.TP</span>
+      <span class="panel-val">Sell take profit and Buy take profit levels — the current cycle extreme in each direction.</span>
+    </div>
+  </div>
+</section>
+
+<!-- CHAPTER 10 -->
+<section class="chapter fade-in" id="ch10">
+  <p class="chapter-num">Chapter 10</p>
+  <h2>The Rules —<br><em>What You Always Do and Never Do</em></h2>
+
+  <p>A method without rules is just an idea. These are the rules that make the Crayon Method a system. Follow them without exception. The times you are tempted to break them are the times they matter most.</p>
+
+  <div class="rule-box">
+    <p class="rule-box-title">The Always Rules</p>
+    <ul class="rule-list">
+      <li>Always check the 4H bias before looking for entries on lower timeframes</li>
+      <li>Always wait for sweep confirmation before entering — pending is not confirmed</li>
+      <li>Always check the manipulation detector before entering any trade</li>
+      <li>Always use the calculated position size — never increase it because you feel confident</li>
+      <li>Always move your stop to parity when price reaches the parity zone</li>
+      <li>Always exit immediately when BLUE divergence fires during an open trade</li>
+      <li>Always respect the 3M floor — do not trade below 3-minute timeframes</li>
+      <li>Always check if price is at an extreme before entering — cycle top, bottom, or parity</li>
+    </ul>
+  </div>
+
+  <div class="rule-box">
+    <p class="rule-box-title">The Never Rules</p>
+    <ul class="rule-list">
+      <li>Never enter when price is in the middle of a range — drop to a lower timeframe or wait</li>
+      <li>Never enter when BLUE divergence is active — manipulation is present</li>
+      <li>Never trade on the 30-minute timeframe — it is not a decision timeframe</li>
+      <li>Never risk more than 2% of your account on a single trade</li>
+      <li>Never move your stop against the trade — only in your favor</li>
+      <li>Never take more than 2 trades in the same day</li>
+      <li>Never chase a move that has already run — wait for the next setup</li>
+      <li>Never trade without all four colors visible on your chart</li>
+    </ul>
+  </div>
+
+  <div class="rule-box">
+    <p class="rule-box-title">The Wick Fill Rule</p>
+    <ul class="rule-list">
+      <li>95% of significant wicks fill before price continues in the original direction</li>
+      <li>When you see a large unfilled wick on the 15M or 1H chart — that wick is a target</li>
+      <li>Price will return to fill it before the continuation move completes</li>
+      <li>Use unfilled wicks as take profit targets on countertrend moves</li>
+      <li>Do not fight the wick — it will fill. Plan around it.</li>
+    </ul>
+  </div>
+
+  <div class="callout">
+    <p>"The discipline is the system. Anyone can read the colors. Not everyone can wait. The trade that fires when all conditions are met — and only then — is the Stupid Buy or Stupid Sell. Everything before that is preparation."</p>
+  </div>
+</section>
+
+<!-- CLOSING -->
+<div class="closing fade-in">
+  <p class="closing-quote">"The market tells you the numbers. <strong>The Crayons show you the story.</strong> Discipline wins every time."</p>
+  <p class="closing-attr">— William Martinez · Creator of The Crayon Method · Wall Street 1984</p>
+
+  <p style="color:var(--white-dim);font-size:0.95rem;line-height:1.8;margin-bottom:2.5rem;">You now have the complete foundation. The method is yours to study and apply. When you are ready to trade it with the algorithm doing the heavy lifting — the Full Access membership gives you the live indicator, the real-time panel, and everything running automatically.</p>
+
+  <a href="https://whop.com/forex-crayon-trading-scripts/" class="btn-upgrade" target="_blank">Get Full Access — $44/mo →</a>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <p>© 2026 Forex Crayons · William Martinez · The Crayon Method<br>Invite Only · Do Not Share · Do Not Distribute · Not Financial Advice</p>
+  <p>TradingView: @fxCrayons · Whop: forex-crayon-trading-scripts · fxcrayons@gmail.com</p>
+</footer>
+
+<script>
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) entry.target.classList.add('visible');
+    });
+  }, { threshold: 0.06 });
+
+  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>
