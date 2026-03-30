@@ -438,15 +438,16 @@
       document.getElementById('success-state').style.display = 'block';
       // Redirect to proof page after 3 seconds
       setTimeout(() => {
-        window.location.href = "forex_crayons_proof.html";
+        window.location.href = "forex_crayons_preview.html";
       }, 3000);
     })
     .catch(() => {
       // If form submit fails still redirect — don't block the user
-      window.location.href = "forex_crayons_proof.html";
+      window.location.href = "forex_crayons_preview.html";
     });
   });
 </script>
 
 </body>
 </html>
+
