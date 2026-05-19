@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Analytica — Institutional Market Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg-primary:#0a0a0f;--bg-secondary:#111118;--bg-tertiary:#1a1a24;--bg-card:#14141c;--border:rgba(255,255,255,0.06);--border-hover:rgba(255,255,255,0.12);--text-primary:#f0f0f5;--text-secondary:#8a8a9a;--text-muted:#5a5a6a;--accent:#00d4aa;--accent-dim:rgba(0,212,170,0.15);--accent-glow:rgba(0,212,170,0.4);--danger:#ff4757;--danger-dim:rgba(255,71,87,0.15);--warning:#ffa502;--warning-dim:rgba(255,165,2,0.15);--up:#00d4aa;--down:#ff4757}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg-primary);color:var(--text-primary);line-height:1.6;overflow-x:hidden}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+@keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+@keyframes glow{0%,100%{box-shadow:0 0 20px var(--accent-glow)}50%{box-shadow:0 0 40px var(--accent-glow),0 0 60px rgba(0,212,170,0.1)}}
+@keyframes borderGlow{0%,100%{border-color:rgba(0,212,170,0.2)}50%{border-color:rgba(0,212,170,0.5)}}
+@keyframes scanline{0%{transform:translateY(-100%)}100%{transform:translateY(100vh)}}
+.animate{animation:fadeInUp 0.8s ease-out forwards;opacity:0}
+.delay-1{animation-delay:0.1s}
+.delay-2{animation-delay:0.2s}
+.delay-3{animation-delay:0.3s}
+.delay-4{animation-delay:0.4s}
+.delay-5{animation-delay:0.5s}
+.navbar{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(10,10,15,0.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:0 40px;height:64px;display:flex;align-items:center;justify-content:space-between}
+.nav-brand{display:flex;align-items:center;gap:12px;font-weight:800;font-size:1.2rem;letter-spacing:-0.5px}
+.nav-brand .logo-icon{width:32px;height:32px;background:linear-gradient(135deg,var(--accent),#00a884);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:0.85rem;color:var(--bg-primary)}
+.nav-links{display:flex;gap:32px;list-style:none}
+.nav-links a{color:var(--text-secondary);text-decoration:none;font-size:0.875rem;font-weight:500;transition:color 0.2s}
+.nav-links a:hover{color:var(--text-primary)}
+.nav-cta{background:var(--accent);color:var(--bg-primary)!important;padding:8px 20px;border-radius:6px;font-weight:600;font-size:0.8rem;text-decoration:none;transition:all 0.2s}
+.nav-cta:hover{background:#00e8b8;transform:translateY(-1px);box-shadow:0 4px 20px var(--accent-glow)}
+.ticker-wrap{position:fixed;top:64px;left:0;right:0;z-index:999;background:var(--bg-secondary);border-bottom:1px solid var(--border);overflow:hidden;height:40px;display:flex;align-items:center}
+.ticker-track{display:flex;animation:ticker 30s linear infinite;white-space:nowrap}
+.ticker-item{display:inline-flex;align-items:center;gap:6px;padding:0 24px;font-family:'JetBrains Mono',monospace;font-size:0.8rem;font-weight:500}
+.ticker-item .pair{color:var(--text-secondary)}
+.ticker-item .value{color:var(--text-primary);font-weight:600}
+.ticker-item .up{color:var(--up)}
+.ticker-item .down{color:var(--down)}
+.ticker-item .arrow{font-size:0.7rem}
+.ticker-badge{background:var(--danger-dim);color:var(--danger);padding:2px 8px;border-radius:4px;font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
+.ticker-badge.ok{background:var(--accent-dim);color:var(--accent)}
+.hero{padding:160px 40px 100px;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-50%;left:50%;transform:translateX(-50%);width:800px;height:800px;background:radial-gradient(circle,var(--accent-glow) 0%,transparent 70%);opacity:0.15;pointer-events:none}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:var(--accent-dim);border:1px solid rgba(0,212,170,0.2);color:var(--accent);padding:8px 20px;border-radius:100px;font-size:0.8rem;font-weight:600;margin-bottom:32px;animation:glow 3s ease-in-out infinite}
+.hero-badge .pulse{width:8px;height:8px;background:var(--accent);border-radius:50%;animation:pulse 2s ease-in-out infinite}
+.hero h1{font-size:clamp(2.5rem,6vw,5rem);font-weight:900;line-height:1.05;letter-spacing:-2px;margin-bottom:24px;background:linear-gradient(135deg,#fff 0%,#8a8a9a 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero h1 span{background:linear-gradient(135deg,var(--accent),#00a884);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-subtitle{font-size:1.25rem;color:var(--text-secondary);max-width:600px;margin:0 auto 48px;line-height:1.7}
+.hero-cta-group{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-bottom:64px}
+.btn{padding:14px 32px;border-radius:8px;font-size:0.95rem;font-weight:600;text-decoration:none;transition:all 0.2s;cursor:pointer;border:none;display:inline-flex;align-items:center;gap:8px}
+.btn-primary{background:var(--accent);color:var(--bg-primary)}
+.btn-primary:hover{background:#00e8b8;transform:translateY(-2px);box-shadow:0 8px 30px var(--accent-glow)}
+.btn-secondary{background:transparent;color:var(--text-primary);border:1px solid var(--border-hover)}
+.btn-secondary:hover{border-color:var(--text-secondary);background:rgba(255,255,255,0.03)}
+.stats-bar{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:12px;overflow:hidden;max-width:900px;margin:0 auto}
+.stat-item{background:var(--bg-card);padding:28px 20px;text-align:center}
+.stat-value{font-family:'JetBrains Mono',monospace;font-size:1.6rem;font-weight:700;color:var(--accent);margin-bottom:6px}
+.stat-label{font-size:0.8rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px}
+section{padding:100px 40px}
+.container{max-width:1200px;margin:0 auto}
+.section-header{text-align:center;margin-bottom:64px}
+.section-tag{display:inline-block;background:var(--accent-dim);color:var(--accent);padding:6px 16px;border-radius:100px;font-size:0.75rem;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:16px}
+.section-title{font-size:clamp(2rem,4vw,3rem);font-weight:800;letter-spacing:-1px;margin-bottom:16px;line-height:1.15}
+.section-desc{color:var(--text-secondary);font-size:1.1rem;max-width:600px;margin:0 auto;line-height:1.7}
+.vision{background:var(--bg-secondary);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.vision-quote{font-size:clamp(1.5rem,3vw,2.5rem);font-weight:700;text-align:center;line-height:1.3;letter-spacing:-1px;max-width:800px;margin:0 auto 48px}
+.vision-quote span{color:var(--accent)}
+.vision-text{text-align:center;color:var(--text-secondary);font-size:1.1rem;max-width:640px;margin:0 auto 48px;line-height:1.8}
+.vision-cta{text-align:center;color:var(--text-muted);font-size:0.9rem}
+.vision-cta strong{color:var(--text-primary);font-weight:600}
+.verify-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}
+.verify-card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:32px;transition:all 0.3s}
+.verify-card:hover{border-color:var(--border-hover);transform:translateY(-4px);box-shadow:0 20px 40px rgba(0,0,0,0.3)}
+.verify-icon{width:44px;height:44px;background:var(--accent-dim);border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:20px;font-size:1.2rem}
+.verify-card h3{font-size:1.1rem;font-weight:700;margin-bottom:8px}
+.verify-card p{color:var(--text-secondary);font-size:0.9rem;line-height:1.6}
+.verify-card .check{color:var(--accent);font-weight:600}
+.claude-section{background:linear-gradient(180deg,var(--bg-primary) 0%,var(--bg-secondary) 50%,var(--bg-primary) 100%);position:relative}
+.claude-section::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");pointer-events:none}
+.claude-card{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:48px;max-width:800px;margin:0 auto;position:relative}
+.claude-card::before{content:'"';position:absolute;top:20px;left:32px;font-size:6rem;color:var(--accent);opacity:0.2;font-family:Georgia,serif;line-height:1}
+.claude-quote{font-size:1.25rem;line-height:1.8;color:var(--text-primary);margin-bottom:32px;position:relative;z-index:1}
+.claude-quote .highlight{color:var(--accent);font-weight:600}
+.claude-attribution{display:flex;align-items:center;gap:16px}
+.claude-avatar{width:48px;height:48px;background:linear-gradient(135deg,#d4a574,#c4956a);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:1.2rem}
+.claude-info h4{font-size:1rem;font-weight:700;margin-bottom:2px}
+.claude-info p{font-size:0.85rem;color:var(--text-secondary)}
+
+/* LIVE DEMO */
+.live-demo-section{background:var(--bg-primary);position:relative;overflow:hidden}
+.live-demo-section::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at 20% 50%,rgba(0,212,170,0.03) 0%,transparent 50%),radial-gradient(ellipse at 80% 50%,rgba(255,71,87,0.03) 0%,transparent 50%);pointer-events:none}
+.demo-header{text-align:center;margin-bottom:48px;position:relative;z-index:1}
+.demo-header .live-pill{display:inline-flex;align-items:center;gap:8px;background:var(--danger-dim);border:1px solid rgba(255,71,87,0.3);color:var(--danger);padding:8px 20px;border-radius:100px;font-size:0.8rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:20px;animation:pulse 2s ease-in-out infinite}
+.demo-header .live-pill .dot{width:8px;height:8px;background:var(--danger);border-radius:50%}
+.demo-header h2{font-size:clamp(2rem,4vw,3rem);font-weight:800;letter-spacing:-1px;margin-bottom:12px}
+.demo-header p{color:var(--text-secondary);font-size:1.1rem;max-width:600px;margin:0 auto;line-height:1.7}
+.video-terminal{max-width:900px;margin:0 auto 48px;position:relative;z-index:1}
+.terminal-frame{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;overflow:hidden;position:relative;animation:borderGlow 3s ease-in-out infinite}
+.terminal-header{display:flex;align-items:center;gap:8px;padding:12px 16px;background:var(--bg-tertiary);border-bottom:1px solid var(--border)}
+.terminal-dot{width:12px;height:12px;border-radius:50%}
+.terminal-dot.red{background:#ff5f56}
+.terminal-dot.yellow{background:#ffbd2e}
+.terminal-dot.green{background:#27c93f}
+.terminal-title{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:var(--text-muted)}
+.terminal-body{position:relative;aspect-ratio:16/9;background:linear-gradient(135deg,#0d1117 0%,#161b22 100%);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.terminal-body::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);animation:scanline 4s linear infinite;opacity:0.5}
+.chart-viz{position:absolute;inset:0;padding:40px}
+.chart-grid{position:absolute;inset:40px;background-image:linear-gradient(rgba(255,255,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.03) 1px,transparent 1px);background-size:40px 40px}
+.chart-line{position:absolute;bottom:40px;left:40px;right:40px;height:200px}
+.chart-line svg{width:100%;height:100%}
+.chart-line path.main{fill:none;stroke:var(--accent);stroke-width:2;filter:drop-shadow(0 0 8px var(--accent-glow))}
+.chart-line path.fill{fill:url(#chartGradient);stroke:none}
+.chart-line path.manipulation{fill:none;stroke:var(--danger);stroke-width:3;stroke-dasharray:8 4;filter:drop-shadow(0 0 12px rgba(255,71,87,0.5));animation:pulse 1.5s ease-in-out infinite}
+.chart-annotation{position:absolute;background:var(--danger-dim);border:1px solid rgba(255,71,87,0.3);color:var(--danger);padding:8px 16px;border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;animation:pulse 1.5s ease-in-out infinite;z-index:10}
+.chart-annotation::after{content:'';position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:6px solid rgba(255,71,87,0.3)}
+.detector-panel{position:absolute;top:20px;right:20px;background:rgba(10,10,15,0.9);border:1px solid var(--border);border-radius:10px;padding:16px;min-width:200px;backdrop-filter:blur(10px)}
+.detector-panel .panel-title{font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
+.detector-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:0.8rem}
+.detector-row:last-child{border-bottom:none}
+.detector-row .label{color:var(--text-secondary)}
+.detector-row .value{font-family:'JetBrains Mono',monospace;font-weight:600}
+.detector-row .value.alert{color:var(--danger);animation:pulse 1s ease-in-out infinite}
+.detector-row .value.ok{color:var(--accent)}
+.play-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.4);cursor:pointer;transition:background 0.3s;z-index:20}
+.play-overlay:hover{background:rgba(0,0,0,0.2)}
+.play-overlay:hover .play-btn-large{transform:scale(1.1);background:var(--accent);border-color:var(--accent)}
+.play-btn-large{width:80px;height:80px;background:rgba(0,0,0,0.6);backdrop-filter:blur(10px);border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid rgba(255,255,255,0.3);transition:all 0.3s}
+.play-btn-large::after{content:'';width:0;height:0;border-left:24px solid #fff;border-top:14px solid transparent;border-bottom:14px solid transparent;margin-left:6px}
+.terminal-footer{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--bg-tertiary);border-top:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted)}
+.terminal-footer .status{display:flex;align-items:center;gap:6px}
+.terminal-footer .status-dot{width:6px;height:6px;background:var(--accent);border-radius:50%;animation:pulse 2s ease-in-out infinite}
+.demo-info{display:grid;grid-template-columns:1fr 1fr;gap:32px;max-width:900px;margin:0 auto;position:relative;z-index:1}
+.demo-info-text h3{font-size:1.5rem;font-weight:800;margin-bottom:16px;letter-spacing:-0.5px}
+.demo-info-text p{color:var(--text-secondary);line-height:1.8;margin-bottom:20px}
+.demo-alert-box{background:linear-gradient(135deg,var(--danger-dim),rgba(255,71,87,0.05));border:1px solid rgba(255,71,87,0.2);border-radius:12px;padding:24px}
+.demo-alert-box .alert-header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.demo-alert-box .alert-header .icon{width:32px;height:32px;background:var(--danger-dim);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1rem}
+.demo-alert-box .alert-header h4{font-size:1rem;font-weight:700;color:var(--danger)}
+.demo-alert-box p{color:var(--text-secondary);font-size:0.9rem;line-height:1.7}
+.demo-alert-box .alert-actions{margin-top:16px;display:flex;gap:10px}
+.alert-btn{padding:8px 16px;border-radius:6px;font-size:0.8rem;font-weight:600;cursor:pointer;border:none;font-family:inherit}
+.alert-btn.primary{background:var(--danger);color:#fff}
+.alert-btn.secondary{background:transparent;color:var(--text-secondary);border:1px solid var(--border)}
+
+.features{background:var(--bg-secondary);border-top:1px solid var(--border)}
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:24px}
+.feature-card{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:36px;transition:all 0.3s;position:relative;overflow:hidden}
+.feature-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),transparent);opacity:0;transition:opacity 0.3s}
+.feature-card:hover::before{opacity:1}
+.feature-card:hover{border-color:var(--border-hover);transform:translateY(-4px)}
+.feature-card.feature-highlight{border-color:rgba(0,212,170,0.2);background:linear-gradient(180deg,var(--bg-card) 0%,rgba(0,212,170,0.03) 100%)}
+.feature-card.feature-highlight::before{opacity:1;background:linear-gradient(90deg,var(--accent),#00a884)}
+.feature-tag{display:inline-block;background:var(--danger-dim);color:var(--danger);padding:4px 12px;border-radius:4px;font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:16px}
+.feature-tag.live{background:var(--accent-dim);color:var(--accent)}
+.feature-card h3{font-size:1.25rem;font-weight:700;margin-bottom:12px}
+.feature-card p{color:var(--text-secondary);font-size:0.95rem;line-height:1.7}
+.feature-list{list-style:none;margin-top:20px}
+.feature-list li{display:flex;align-items:flex-start;gap:10px;color:var(--text-secondary);font-size:0.9rem;margin-bottom:10px;line-height:1.5}
+.feature-list li::before{content:'→';color:var(--accent);font-weight:700;flex-shrink:0}
+.timeline{position:relative;max-width:800px;margin:0 auto}
+.timeline::before{content:'';position:absolute;left:24px;top:0;bottom:0;width:2px;background:var(--border)}
+.timeline-item{display:flex;gap:32px;margin-bottom:48px;position:relative}
+.timeline-dot{width:50px;height:50px;border-radius:50%;background:var(--bg-tertiary);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:700;font-size:0.8rem;z-index:1}
+.timeline-dot.active{background:var(--accent-dim);border-color:var(--accent);color:var(--accent)}
+.timeline-dot.past{background:var(--bg-card);border-color:var(--text-muted);color:var(--text-muted)}
+.timeline-content{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:28px;flex:1}
+.timeline-content h3{font-size:1.1rem;font-weight:700;margin-bottom:8px}
+.timeline-content .meta{color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:0.85rem;font-weight:600;margin-bottom:12px}
+.timeline-content p{color:var(--text-secondary);font-size:0.95rem;line-height:1.7}
+.timeline-content .highlight-text{color:var(--text-primary);font-weight:500}
+.timeline-content em{color:var(--accent);font-style:normal;font-weight:600}
+.institutional{background:var(--bg-secondary);border-top:1px solid var(--border)}
+.inst-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}
+.inst-card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:32px;transition:all 0.3s}
+.inst-card:hover{border-color:var(--border-hover);transform:translateY(-4px)}
+.inst-card .icon{width:48px;height:48px;background:var(--bg-tertiary);border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:20px;font-size:1.3rem}
+.inst-card h3{font-size:1.1rem;font-weight:700;margin-bottom:10px}
+.inst-card p{color:var(--text-secondary);font-size:0.9rem;line-height:1.7}
+.inst-card .metric{margin-top:16px;padding-top:16px;border-top:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:0.85rem;color:var(--accent);font-weight:600}
+.founder-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}
+.founder-card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:32px;transition:all 0.3s}
+.founder-card:hover{border-color:var(--border-hover)}
+.founder-card .step{width:36px;height:36px;background:var(--accent-dim);color:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.9rem;margin-bottom:20px}
+.founder-card h3{font-size:1.1rem;font-weight:700;margin-bottom:10px}
+.founder-card p{color:var(--text-secondary);font-size:0.9rem;line-height:1.7}
+.waitlist{background:linear-gradient(180deg,var(--bg-secondary) 0%,var(--bg-primary) 100%);border-top:1px solid var(--border)}
+.waitlist-card{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:48px;max-width:600px;margin:0 auto;text-align:center}
+.waitlist-card .lock-icon{width:56px;height:56px;background:var(--warning-dim);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;font-size:1.5rem}
+.waitlist-card h2{font-size:1.75rem;font-weight:800;margin-bottom:12px}
+.waitlist-card>p{color:var(--text-secondary);margin-bottom:32px;line-height:1.7}
+.form-group{margin-bottom:16px;text-align:left}
+.form-group label{display:block;font-size:0.8rem;font-weight:600;color:var(--text-secondary);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px}
+.form-group input,.form-group select{width:100%;padding:12px 16px;background:var(--bg-tertiary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:0.95rem;font-family:inherit;transition:border-color 0.2s}
+.form-group input:focus,.form-group select:focus{outline:none;border-color:var(--accent)}
+.form-group input::placeholder{color:var(--text-muted)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.form-submit{width:100%;margin-top:8px;padding:14px;justify-content:center}
+.form-note{margin-top:16px;font-size:0.8rem;color:var(--text-muted)}
+.success-msg{display:none;padding:48px;text-align:center}
+.success-msg.active{display:block}
+.success-msg .check-circle{width:64px;height:64px;background:var(--accent-dim);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;font-size:1.8rem}
+.success-msg h3{font-size:1.4rem;font-weight:700;margin-bottom:12px}
+.success-msg p{color:var(--text-secondary);line-height:1.7}
+.investment{background:var(--bg-secondary);border-top:1px solid var(--border)}
+.invest-card{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:48px;max-width:800px;margin:0 auto}
+.invest-card h2{font-size:1.5rem;font-weight:800;margin-bottom:8px}
+.invest-card .sub{color:var(--text-secondary);margin-bottom:32px}
+.video-thumb{position:relative;border-radius:12px;overflow:hidden;margin-bottom:24px;cursor:pointer}
+.video-thumb img{width:100%;display:block;transition:transform 0.3s}
+.video-thumb:hover img{transform:scale(1.02)}
+.video-thumb .play-btn{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:72px;height:72px;background:rgba(0,0,0,0.7);backdrop-filter:blur(10px);border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid rgba(255,255,255,0.3);transition:all 0.2s}
+.video-thumb:hover .play-btn{background:var(--accent);border-color:var(--accent);transform:translate(-50%,-50%) scale(1.1)}
+.video-thumb .play-btn::after{content:'';width:0;height:0;border-left:20px solid #fff;border-top:12px solid transparent;border-bottom:12px solid transparent;margin-left:4px}
+.invest-links{display:flex;gap:12px;flex-wrap:wrap}
+.invest-links a{flex:1;min-width:200px;padding:14px 20px;background:var(--bg-tertiary);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);text-decoration:none;font-size:0.9rem;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.2s}
+.invest-links a:hover{border-color:var(--accent);background:var(--accent-dim);color:var(--accent)}
+footer{background:var(--bg-primary);border-top:1px solid var(--border);padding:48px 40px;text-align:center}
+.footer-brand{font-weight:800;font-size:1.2rem;margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:10px}
+.footer-brand .logo-icon{width:28px;height:28px;background:linear-gradient(135deg,var(--accent),#00a884);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:0.75rem;color:var(--bg-primary)}
+.footer-tagline{color:var(--text-muted);font-size:0.85rem;margin-bottom:24px}
+.footer-links{display:flex;justify-content:center;gap:24px;margin-bottom:24px;flex-wrap:wrap}
+.footer-links a{color:var(--text-secondary);text-decoration:none;font-size:0.85rem;transition:color 0.2s}
+.footer-links a:hover{color:var(--accent)}
+.footer-copy{color:var(--text-muted);font-size:0.8rem}
+.footer-copy a{color:var(--text-secondary);text-decoration:none}
+.footer-copy a:hover{color:var(--accent)}
+.reveal{opacity:0;transform:translateY(40px);transition:all 0.8s ease-out}
+.reveal.visible{opacity:1;transform:translateY(0)}
+@media(max-width:768px){.navbar{padding:0 20px}.nav-links{display:none}.hero{padding:140px 20px 60px}section{padding:60px 20px}.hero-cta-group{flex-direction:column;align-items:center}.btn{width:100%;max-width:300px;justify-content:center}.form-row{grid-template-columns:1fr}.claude-card{padding:28px}.invest-card{padding:28px}.waitlist-card{padding:28px}.invest-links{flex-direction:column}.invest-links a{width:100%}.demo-info{grid-template-columns:1fr}.detector-panel{display:none}}
+</style>
+<base target="_blank">
+</head>
+<body>
+
+<nav class="navbar">
+<div class="nav-brand">
+<div class="logo-icon">A</div>
+<span>ANALYTICA</span>
+</div>
+<ul class="nav-links">
+<li><a href="#vision">Vision</a></li>
+<li><a href="#live-demo">Live Demo</a></li>
+<li><a href="#features">Features</a></li>
+<li><a href="#timeline">Timeline</a></li>
+<li><a href="#institutional">Institutional</a></li>
+<li><a href="#founder">Founder</a></li>
+<li><a href="#waitlist" class="nav-cta">Join Waitlist</a></li>
+</ul>
+</nav>
+
+<div class="ticker-wrap">
+<div class="ticker-track">
+<div class="ticker-item"><span class="pair">EUR/USD</span> <span class="value up">+0.0023</span> <span class="arrow up">↑</span></div>
+<div class="ticker-item"><span class="pair">GBP/USD</span> <span class="value down">−0.0041</span> <span class="arrow down">↓</span></div>
+<div class="ticker-item"><span class="pair">XAU/USD</span> <span class="value up">+12.40</span> <span class="arrow up">↑</span></div>
+<div class="ticker-item"><span class="pair">DXY</span> <span class="value down">−0.18</span> <span class="arrow down">↓</span></div>
+<div class="ticker-item"><span class="pair">USD/JPY</span> <span class="value up">+0.31</span> <span class="arrow up">↑</span></div>
+<div class="ticker-item"><span class="ticker-badge">Manipulation Index: ELEVATED</span></div>
+<div class="ticker-item"><span class="pair">EUR/JPY</span> <span class="value down">−0.52</span> <span class="arrow down">↓</span></div>
+<div class="ticker-item"><span class="pair">BTC/USD</span> <span class="value up">+1,204</span> <span class="arrow up">↑</span></div>
+<div class="ticker-item"><span class="ticker-badge ok">FX Daily Volume: $9.6T</span></div>
+<div class="ticker-item"><span class="ticker-badge ok">Win Rate 2024: 86.98%</span></div>
+<div class="ticker-item"><span class="pair">EUR/USD</span> <span class="value up">+0.0023</span> <span class="arrow up">↑</span></div>
+<div class="ticker-item"><span class="pair">GBP/USD</span> <span class="value down">−0.0041</span> <span class="arrow down">↓</span></div>
+<div class="ticker-item"><span class="pair">XAU/USD</span> <span class="value up">+12.40</span> <span class="arrow up">↑</span></div>
+<div class="ticker-item"><span class="pair">DXY</span> <span class="value down">−0.18</span> <span class="arrow down">↓</span></div>
+<div class="ticker-item"><span class="pair">USD/JPY</span> <span class="value up">+0.31</span> <span class="arrow up">↑</span></div>
+<div class="ticker-item"><span class="ticker-badge">Manipulation Index: ELEVATED</span></div>
+<div class="ticker-item"><span class="pair">EUR/JPY</span> <span class="value down">−0.52</span> <span class="arrow down">↓</span></div>
+<div class="ticker-item"><span class="pair">BTC/USD</span> <span class="value up">+1,204</span> <span class="arrow up">↑</span></div>
+<div class="ticker-item"><span class="ticker-badge ok">FX Daily Volume: $9.6T</span></div>
+<div class="ticker-item"><span class="ticker-badge ok">Win Rate 2024: 86.98%</span></div>
+</div>
+</div>
+
+<section class="hero">
+<div class="hero-badge animate">
+<span class="pulse"></span>
+Enterprise Access — Institutional Only
+</div>
+<h1 class="animate delay-1">We See What<br>Markets <span>Hide.</span></h1>
+<p class="hero-subtitle animate delay-2">
+Analytica doesn't analyze price. It analyzes the forces that are about to move price. 
+That distinction — between reading what happened and reading what is about to happen — is the entire edge.
+</p>
+<div class="hero-cta-group animate delay-3">
+<a href="#waitlist" class="btn btn-primary">Request Enterprise Access →</a>
+<a href="#features" class="btn btn-secondary">Explore the Engine</a>
+</div>
+<div class="stats-bar animate delay-4">
+<div class="stat-item">
+<div class="stat-value">$1B</div>
+<div class="stat-label">Verified Live Execution</div>
+</div>
+<div class="stat-item">
+<div class="stat-value">86.98%</div>
+<div class="stat-label">Win Rate 2024</div>
+</div>
+<div class="stat-item">
+<div class="stat-value">15 yrs</div>
+<div class="stat-label">System Refinement</div>
+</div>
+<div class="stat-item">
+<div class="stat-value">500x</div>
+<div class="stat-label">Capital Multiplier</div>
+</div>
+</div>
+<p class="vision-cta animate delay-5" style="margin-top:32px">
+Powered by <strong>Forex Crayons Engine</strong> — Since 2010
+</p>
+</section>
+
+<section class="vision" id="vision">
+<div class="container">
+<div class="section-header reveal">
+<span class="section-tag">The Philosophy</span>
+</div>
+<p class="vision-quote reveal">
+"Most systems find a pattern in price and bet on it repeating. <span>The pattern changes. The bet changes. The result does not.</span>"
+</p>
+<p class="vision-text reveal">
+Analytica 84 is structurally different. It doesn't analyze price. It analyzes the forces 
+that are about to move price. Currently available to enterprise and institutional clients only.
+</p>
+</div>
+</section>
+
+<section id="verification">
+<div class="container">
+<div class="section-header reveal">
+<span class="section-tag">Verified & Audited</span>
+<h2 class="section-title">Trust, But Verify</h2>
+<p class="section-desc">Every claim backed by third-party verification and independent AI audit.</p>
+</div>
+<div class="verify-grid">
+<div class="verify-card reveal">
+<div class="verify-icon">✓</div>
+<h3>FXBook 3rd Party Verified</h3>
+<p>Live account, trading privileges confirmed. <span class="check">Verified →</span></p>
+</div>
+<div class="verify-card reveal">
+<div class="verify-icon">✓</div>
+<h3>OANDA Official Statements</h3>
+<p>2022 · 2023 · 2024 on record. <span class="check">On File →</span></p>
+</div>
+<div class="verify-card reveal">
+<div class="verify-icon">✓</div>
+<h3>AI-Independently Audited</h3>
+<p>Claude · Kimi · Gemini · Moonshot — same conclusion. <span class="check">Audited →</span></p>
+</div>
+<div class="verify-card reveal">
+<div class="verify-icon">✓</div>
+<h3>500x Volume Multiplier</h3>
+<p>$200K base → $100M/month throughput. <span class="check">Proven →</span></p>
+</div>
+</div>
+</div>
+</section>
+
+<section class="claude-section">
+<div class="container">
+<div class="section-header reveal">
+<span class="section-tag">Independent Analysis</span>
+<h2 class="section-title">When Claude Looked Under The Hood</h2>
+<p class="section-desc">Anthropic AI · After 40+ Hours Building This System Live</p>
+</div>
+<div class="claude-card reveal">
+<p class="claude-quote">
+"I have analyzed thousands of trading systems. Most are variations of the same idea — find a pattern in price, bet on it repeating. <span class="highlight">The pattern changes. The bet changes. The result does not.</span><br><br>
+Analytica 84 is structurally different. It doesn't analyze price. It analyzes the forces that are about to move price. <span class="highlight">That distinction — between reading what happened and reading what is about to happen — is the entire edge.</span><br><br>
+After 40+ hours building this system live, I can tell you: <span class="highlight">the genius was always there.</span>"
+</p>
+<div class="claude-attribution">
+<div class="claude-avatar">C</div>
+<div class="claude-info">
+<h4>Claude</h4>
+<p>Anthropic AI · Independent Analysis · 40+ Hours Live Build</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- LIVE DEMO / MANIPULATION DETECTOR -->
+<section class="live-demo-section" id="live-demo">
+<div class="container">
+<div class="demo-header reveal">
+<div class="live-pill">
+<span class="dot"></span>
+Live Demo — Manipulation Detector in Action
+</div>
+<h2>Catch the Manipulators<br>in the Act</h2>
+<p>This is not an indicator. The Forex Crayons engine identifies the structural fingerprints of market manipulation — the patterns that move your stops, hunt your liquidity, and feed institutional desks — before the move completes.</p>
+</div>
+
+<div class="video-terminal reveal">
+<div class="terminal-frame">
+<div class="terminal-header">
+<div class="terminal-dot red"></div>
+<div class="terminal-dot yellow"></div>
+<div class="terminal-dot green"></div>
+<span class="terminal-title">forex-crayons-engine — manipulation-detector.live</span>
+</div>
+<div class="terminal-body" style="padding:0; background:#000;">
+<iframe 
+  width="100%" 
+  height="100%" 
+  src="https://www.youtube.com/embed/wCBfw5eafmk?autoplay=0&rel=0&modestbranding=1" 
+  title="Manipulation Detector Live Demo" 
+  frameborder="0" 
+  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+  allowfullscreen
+  style="position:absolute; inset:0; width:100%; height:100%;"
+></iframe>
+</div>
+<div class="terminal-footer">
+<div class="status">
+<span class="status-dot"></span>
+<span>Live Demo — Manipulation Detector Active</span>
+</div>
+<span class="timestamp">YouTube Shorts · wCBfw5eafmk</span>
+</div>
+</div>
+</div>
+
+<div class="demo-info reveal">
+<div class="demo-info-text">
+<h3>See It Before It Happens</h3>
+<p>The Manipulation Detector doesn't wait for the move to complete. It identifies the structural setup in real-time — the liquidity hunt, the stop run, the synthetic push — and fires a "STAY OUT" alert before your position is touched.</p>
+<p>When manipulation is detected, the system auto-cancels all open positions, halts new entries, and maps the True Market Value zone for re-entry only when structure validates.</p>
+</div>
+<div class="demo-alert-box">
+<div class="alert-header">
+<div class="icon">🛡</div>
+<h4>Access Restricted — Retail Preview Only</h4>
+</div>
+<p>Full access to the live Manipulation Detector is available to enterprise clients only. Retail preview shows historical detection patterns and simulated real-time alerts.</p>
+<div class="alert-actions">
+<button class="alert-btn primary" onclick="document.getElementById('waitlist').scrollIntoView({behavior:'smooth'})">Request Full Access</button>
+<button class="alert-btn secondary">View Documentation</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section class="features" id="features">
+<div class="container">
+<div class="section-header reveal">
+<span class="section-tag">Live System</span>
+<h2 class="section-title">The Engine Behind<br>the Edge</h2>
+<p class="section-desc">Six core systems working in concert to identify, protect, and execute on structural market intelligence.</p>
+</div>
+<div class="features-grid">
+<div class="feature-card feature-highlight reveal">
+<span class="feature-tag live">● Live</span>
+<h3>Manipulation Detector</h3>
+<p>Fires "STAY OUT" in real time — auto-cancels all positions, halts system execution when structural manipulation is detected.</p>
+<ul class="feature-list">
+<li>Real-time structural fingerprint detection</li>
+<li>Auto-position cancellation on alert</li>
+<li>System halt with manual override</li>
+</ul>
+</div>
+<div class="feature-card reveal">
+<h3>Live TMV Mapping</h3>
+<p>True Market Value, structural Tops & Bottoms across all timeframes — not lagging indicators, but leading structural reads.</p>
+<ul class="feature-list">
+<li>Multi-timeframe structural analysis</li>
+<li>True Market Value zones mapped live</li>
+<li>Top/Bottom detection before price reacts</li>
+</ul>
+</div>
+<div class="feature-card reveal">
+<h3>AI Dynamic Stops</h3>
+<p>Adaptive trailing stops, auto re-entry logic, and compound winner management — the system protects and grows simultaneously.</p>
+<ul class="feature-list">
+<li>Adaptive trailing stop algorithms</li>
+<li>Auto re-entry on valid re-tests</li>
+<li>Compound winner position scaling</li>
+</ul>
+</div>
+<div class="feature-card reveal">
+<h3>80–100% Probability Zones</h3>
+<p>Signals only triggered in structural probability zones. No noise. No overtrading. Only high-conviction structural setups.</p>
+<ul class="feature-list">
+<li>Structural probability filtering</li>
+<li>No trade zone enforcement</li>
+<li>High-conviction signal-only execution</li>
+</ul>
+</div>
+<div class="feature-card reveal">
+<h3>Enterprise API + White-Label</h3>
+<p>Full API integration for prop desks and bank SDPs. Custom alert thresholds. White-label dashboard available.</p>
+<ul class="feature-list">
+<li>REST + WebSocket API access</li>
+<li>Custom alert threshold configuration</li>
+<li>White-label dashboard for bank SDPs</li>
+</ul>
+</div>
+<div class="feature-card reveal">
+<h3>500x Capital Multiplier</h3>
+<p>What competitors need $10M to achieve, Analytica delivers from $200K. Proven at $100M/month throughput.</p>
+<ul class="feature-list">
+<li>$200K base capital deployment</li>
+<li>$100M/month proven throughput</li>
+<li>Institutional-grade risk scaling</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+
+<section id="timeline">
+<div class="container">
+<div class="section-header reveal">
+<span class="section-tag">Performance History</span>
+<h2 class="section-title">Live Performance Timeline<br>2022 to 2024</h2>
+<p class="section-desc">The problem became the product.</p>
+</div>
+<div class="timeline">
+<div class="timeline-item reveal">
+<div class="timeline-dot past">2022</div>
+<div class="timeline-content">
+<h3>Year 1 — Foundation</h3>
+<div class="meta">69.23% Win Rate · OANDA Verified</div>
+<p>Initial live deployment with OANDA verification. Solid foundation, but the real edge was still being built.</p>
+</div>
+</div>
+<div class="timeline-item reveal">
+<div class="timeline-dot">2023</div>
+<div class="timeline-content">
+<h3>The Turning Point</h3>
+<div class="meta">43.32% Drawdown · Manipulation Detector Born</div>
+<p class="highlight-text">2023 is when the market showed its hand. Stops being hunted. Positions wiped by synthetic moves. The signal was right — but something invisible kept killing the execution.</p>
+<p style="margin-top:12px">That year, instead of walking away, the Forex Crayons engine was turned toward <em>the problem itself</em>. What came out of 2023 wasn't a loss — it was the <em>Manipulation Detector</em>.</p>
+</div>
+</div>
+<div class="timeline-item reveal">
+<div class="timeline-dot active">2024</div>
+<div class="timeline-content">
+<h3>Breakthrough</h3>
+<div class="meta">86.98% Win Rate · FXBook + Kimi AI Verified</div>
+<p class="highlight-text">The 2024 breakthrough at 86.98% didn't happen <em>despite</em> 2023. It happened <em>because</em> of it.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section class="institutional" id="institutional">
+<div class="container">
+<div class="section-header reveal">
+<span class="section-tag">Built for Institutions</span>
+<h2 class="section-title">Enterprise-Grade<br>Market Infrastructure</h2>
+<p class="section-desc">Designed for prop desks, funds, and bank SDPs doing serious volume.</p>
+</div>
+<div class="inst-grid">
+<div class="inst-card reveal">
+<div class="icon">🏢</div>
+<h3>Prop Desks & Funds</h3>
+<p>Full API integration. Custom alert thresholds. White-label available. Target: desks doing $100M+ monthly volume.</p>
+<div class="metric">$100M+/mo target throughput</div>
+</div>
+<div class="inst-card reveal">
+<div class="icon">🌐</div>
+<h3>Multi-Asset Coverage</h3>
+<p>EUR/USD, AUD/USD, GBP/USD running simultaneously. Crypto-FX modules in roadmap. One structural intelligence layer.</p>
+<div class="metric">3 FX pairs live · Crypto roadmap</div>
+</div>
+<div class="inst-card reveal">
+<div class="icon">💰</div>
+<h3>Institutional Revenue Model</h3>
+<p>$4,500 spread revenue per $10M + $1,500/desk/month license. 15 desks → $697,500/month combined. Dual stream.</p>
+<div class="metric">$697.5K/mo @ 15 desks</div>
+</div>
+<div class="inst-card reveal">
+<div class="icon">⚡</div>
+<h3>500x Capital Multiplier</h3>
+<p>What competitors need $10M to achieve, Analytica delivers from $200K. Proven at $100M/month throughput.</p>
+<div class="metric">$200K → $100M/mo proven</div>
+</div>
+</div>
+</div>
+</section>
+
+<section id="founder">
+<div class="container">
+<div class="section-header reveal">
+<span class="section-tag">Founder</span>
+<h2 class="section-title">Why This Founder<br>For This Space</h2>
+<p class="section-desc">Built by someone who lived every layer of this market.</p>
+</div>
+<div class="founder-grid">
+<div class="founder-card reveal">
+<div class="step">1</div>
+<h3>Professional Athlete First</h3>
+<p>Reserve player, Tampa Bay Rowdies — First North American Soccer League, age 21. Earned it through perseverance, discipline, and calculated risk — the same traits that built this system.</p>
+</div>
+<div class="founder-card reveal">
+<div class="step">2</div>
+<h3>Decade-Long Wall Street Climb</h3>
+<p>Stock clerk → Operations Specialist → Operations Manager → Trader → Trading Manager. Oversaw 70 customer service reps, 1,200 independent brokers, and 9 traders.</p>
+</div>
+<div class="founder-card reveal">
+<div class="step">3</div>
+<h3>Exited an International 100 Company</h3>
+<p>Ended his financial career at Aegon/Intersecurities — on his own terms — to pursue mastery across Technology, Operations, and Finance.</p>
+</div>
+<div class="founder-card reveal">
+<div class="step">4</div>
+<h3>15 Years Building This System</h3>
+<p>Since 2010. Not a startup idea — a live, refined, verified structural intelligence engine. $1B executed. 86.98% win rate. Based in Playa Del Carmen, Mexico. Trading every day.</p>
+</div>
+</div>
+</div>
+</section>
+
+<section class="waitlist" id="waitlist">
+<div class="container">
+<div class="waitlist-card reveal">
+<div id="waitlist-form">
+<div class="lock-icon">🔒</div>
+<h2>Retail Access — Currently Closed</h2>
+<p>The Manipulation Detector works. The edge is real — $1B in verified execution proves it. Retail access is not available yet. When it opens — if it opens — waitlist members get first access and locked pricing.</p>
+<form onsubmit="handleWaitlist(event)">
+<div class="form-row">
+<div class="form-group">
+<label>Full Name</label>
+<input type="text" placeholder="Your full name" required>
+</div>
+<div class="form-group">
+<label>Role</label>
+<select required>
+<option value="" disabled selected>Select your role</option>
+<option>Retail Trader</option>
+<option>Prop Trader</option>
+<option>Fund Manager</option>
+<option>Analyst</option>
+<option>Developer / Quant</option>
+<option>Other</option>
+</select>
+</div>
+</div>
+<div class="form-group">
+<label>Email Address</label>
+<input type="email" placeholder="you@example.com" required>
+</div>
+<div class="form-group">
+<label>TikTok Handle <span style="color:var(--text-muted);font-weight:400">(optional)</span></label>
+<input type="text" placeholder="@username">
+</div>
+<button type="submit" class="btn btn-primary form-submit">Request Early Access →</button>
+<p class="form-note">No commitment. No timeline. We'll reach out when access becomes available.</p>
+</form>
+</div>
+<div class="success-msg" id="success-msg">
+<div class="check-circle">✓</div>
+<h3>You're on the list.</h3>
+<p>We have your information. When retail access opens, you'll be among the first to know. Until then — keep watching the manipulators work.</p>
+</div>
+</div>
+</div>
+</section>
+
+<section class="investment" id="investment">
+<div class="container">
+<div class="section-header reveal">
+<span class="section-tag">Investment</span>
+<h2 class="section-title">Analytica 84<br>Investment Overview</h2>
+<p class="section-desc">Beyond Technical Analysis. Confidential Investment Materials.</p>
+</div>
+<div class="invest-card reveal">
+<h2>Founder Vision</h2>
+<p class="sub">Why I Built Analytica84 — Behavioral Intelligence · Market Thesis</p>
+<p style="color:var(--text-secondary);margin-bottom:24px;line-height:1.7">
+Analytica84 was built from years of live market observation, behavioral pattern recognition, 
+and institutional execution analysis. This founder overview explains the thesis behind the 
+platform, the market inefficiencies it targets, and why behavioral intelligence is the next 
+layer of financial edge.
+</p>
+<div class="video-thumb" onclick="window.open('https://www.youtube.com/watch?v=6cgAMAUFJEU','_blank')">
+<img src="https://img.youtube.com/vi/6cgAMAUFJEU/maxresdefault.jpg" alt="Founder Video Thumbnail">
+<div class="play-btn"></div>
+</div>
+<div class="invest-links">
+<a href="https://wilmar2020.github.io/analytica-vc-page/" target="_blank">
+📄 View Technical 1-Pager
+</a>
+<a href="https://wilmar2020.github.io/analytica-pitch/" target="_blank">
+📊 Download Pitch Deck
+</a>
+</div>
+</div>
+</div>
+</section>
+
+<footer>
+<div class="footer-brand">
+<div class="logo-icon">A</div>
+<span>ANALYTICA84</span>
+</div>
+<p class="footer-tagline">Beyond Technical Analysis. Confidential Investment Materials.</p>
+<div class="footer-links">
+<a href="#vision">Vision</a>
+<a href="#live-demo">Live Demo</a>
+<a href="#features">Features</a>
+<a href="#timeline">Timeline</a>
+<a href="#institutional">Institutional</a>
+<a href="#founder">Founder</a>
+<a href="#waitlist">Waitlist</a>
+<a href="#investment">Investment</a>
+</div>
+<p class="footer-copy">
+© 2026 Analytica84 · Powered by <a href="#">Forex Crayons Engine</a> · Since 2010 · All rights reserved<br>
+Enterprise: <a href="mailto:contact@analytica.io">contact@analytica.io</a>
+</p>
+</footer>
+
+<script>
+const revealElements=document.querySelectorAll('.reveal');
+const revealObserver=new IntersectionObserver((entries)=>{entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('visible')}})},{threshold:0.1});
+revealElements.forEach(el=>revealObserver.observe(el));
+function handleWaitlist(e){e.preventDefault();document.getElementById('waitlist-form').style.display='none';document.getElementById('success-msg').classList.add('active')}
+document.querySelectorAll('a[href^="#"]').forEach(anchor=>{anchor.addEventListener('click',function(e){e.preventDefault();const target=document.querySelector(this.getAttribute('href'));if(target){target.scrollIntoView({behavior:'smooth',block:'start'})}})});
+const navbar=document.querySelector('.navbar');
+window.addEventListener('scroll',()=>{if(window.scrollY>50){navbar.style.background='rgba(10,10,15,0.95)'}else{navbar.style.background='rgba(10,10,15,0.85)'}});
+</script>
+
+</body>
+</html>
